@@ -26,7 +26,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(userData);
         }
       } catch (error) {
-        authService.logout();
+        // Dọn phiên local ngay cả khi không gọi được API (token hết hạn / mất mạng)
+        await authService.logout();
       } finally {
         setLoading(false);
       }

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
 } from '@/components/ui/dialog';
 
 interface Invoice {
@@ -14,6 +15,7 @@ interface Invoice {
   invoice_code: string;
   image: string;
   image_url?: string;
+  download_url?: string;
 }
 
 interface InvoiceResultProps {
@@ -25,34 +27,23 @@ export function InvoiceResult({ invoice, onClose }: InvoiceResultProps) {
   const [isViewOpen, setIsViewOpen] = useState(false);
   
   const getImageUrl = () => {
-    if (invoice.image_url) {
-      if (invoice.image_url.startsWith('http')) return invoice.image_url;
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || '';
-      return `${baseUrl}${invoice.image_url}`;
+    const imagePath = invoice.image_url || invoice.image;
+    if (!imagePath) return '';
+    
+    if (imagePath.startsWith('http')) return imagePath;
+    
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:8000';
+    
+    if (imagePath.startsWith('/storage/')) {
+      return baseUrl + imagePath;
     }
-    if (invoice.image?.startsWith('http')) return invoice.image;
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || '';
-    return `${baseUrl}/storage/${invoice.image}`;
+    return `${baseUrl}/storage/${imagePath}`;
   };
-  
-  const imageUrl = getImageUrl();
 
-  const handleDownload = async () => {
-    try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `hoa-don-${invoice.invoice_code}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch {
-      window.open(imageUrl, '_blank');
-    }
-  };
+  const imageUrl = getImageUrl();
+  const downloadHref = imageUrl
+    ? `/api/invoice-file?image=${encodeURIComponent(imageUrl)}`
+    : '';
 
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
@@ -108,14 +99,22 @@ export function InvoiceResult({ invoice, onClose }: InvoiceResultProps) {
           <Eye className="h-4 w-4 mr-2" />
           Xem
         </Button>
-        <Button
-          variant="outline"
-          className="w-full"
-          onClick={handleDownload}
-        >
-          <Download className="h-4 w-4 mr-2" />
-          Tải về
-        </Button>
+        {imageUrl ? (
+          <Button variant="outline" className="w-full" asChild>
+            <a
+              href={downloadHref}
+              download={`hoa-don-${invoice.invoice_code}.png`}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Tải về
+            </a>
+          </Button>
+        ) : (
+          <Button variant="outline" className="w-full" disabled>
+            <Download className="h-4 w-4 mr-2" />
+            Tải về
+          </Button>
+        )}
         <Button
           variant="outline"
           className="w-full"
@@ -128,6 +127,7 @@ export function InvoiceResult({ invoice, onClose }: InvoiceResultProps) {
 
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
+          <DialogTitle className="sr-only">Xem hóa đơn</DialogTitle>
           <div className="relative w-full h-full overflow-auto p-4">
             <img
               src={imageUrl}

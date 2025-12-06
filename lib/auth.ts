@@ -45,6 +45,9 @@ export const authService = {
   async logout(): Promise<void> {
     try {
       await api.post('/auth/logout');
+    } catch (error) {
+      // Nếu backend không phản hồi (mất mạng / CORS), vẫn tiếp tục clear phiên local
+      console.warn('Logout request failed, clearing local session anyway', error);
     } finally {
       localStorage.removeItem('auth_token');
       setAuthCookie(null);

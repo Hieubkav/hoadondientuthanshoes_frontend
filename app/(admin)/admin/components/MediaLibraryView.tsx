@@ -196,9 +196,25 @@ export default function MediaLibraryView({
                       {copyId === item.id ? <CheckIcon /> : <Copy size={14} />}
                     </button>
                     <button
-                      onClick={() => window.open(item.url, '_blank')}
+                      onClick={async () => {
+                       try {
+                         const response = await api.get(`/media/${item.id}/download`, {
+                           responseType: 'blob',
+                         });
+                         const url = window.URL.createObjectURL(response.data);
+                         const a = document.createElement('a');
+                         a.href = url;
+                         a.download = item.name || item.file_name;
+                         document.body.appendChild(a);
+                         a.click();
+                         window.URL.revokeObjectURL(url);
+                         document.body.removeChild(a);
+                       } catch (err) {
+                         setError('Không thể tải file');
+                       }
+                     }}
                       className="h-8 w-8 rounded-full bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 flex items-center justify-center shadow hover:shadow-md"
-                      title="Mở tab mới"
+                      title="Tải xuống"
                     >
                       <ExternalLink size={14} />
                     </button>
