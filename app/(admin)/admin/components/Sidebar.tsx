@@ -12,6 +12,7 @@ import {
   Bell,
   FileText,
   Images,
+  Receipt,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -35,6 +36,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const menuItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Tổng Quan', href: '/admin' },
     { id: 'posts', icon: FileText, label: 'Bài viết', href: '/admin/posts' },
+    { id: 'invoices', icon: Receipt, label: 'Hóa đơn', href: '/admin/invoices' },
     { id: 'media', icon: Images, label: 'Media', href: '/admin/media' },
     { id: 'users', icon: Users, label: 'Người dùng', href: '/admin/users' },
     { id: 'settings', icon: Settings, label: 'Cài Đặt', href: '/admin/settings' },
