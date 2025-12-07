@@ -444,7 +444,8 @@ export function InvoiceLookupForm({ onNavigate, currentView }: InvoiceLookupForm
       </div>
       <div className="text-start md:text-left py-2">
         <p className="text-gray-600 text-xs">
-          © 2017 Giải pháp hóa đơn điện tử{' '}
+          © 2017 Giải pháp hóa đơn điện tử Einvoice
+          {/* {' '}
           <a 
             href="https://einvoice.vn" 
             target="_blank" 
@@ -452,7 +453,7 @@ export function InvoiceLookupForm({ onNavigate, currentView }: InvoiceLookupForm
             className="text-blue-600 underline hover:text-blue-800"
           >
             Einvoice
-          </a>
+          </a> */}
           {' '}phát triển bởi{' '}
           <a 
             href="http://thaison.vn" 
