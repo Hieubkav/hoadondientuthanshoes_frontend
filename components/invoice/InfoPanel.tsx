@@ -16,8 +16,8 @@ export function InfoPanel({ onNavigate, currentView }: InfoPanelProps) {
   ];
 
   return (
-    <div className="bg-[#004a9e] text-white border border-white/30 shadow-sm">
-      <div className="p-[15px] border-b border-white/20">
+    <div className=" text-white ">
+      <div className="p-[15px] ">
         <h3 className="font-bold text-[16px]">Thông tin về hóa đơn điện tử</h3>
       </div>
 
@@ -26,10 +26,10 @@ export function InfoPanel({ onNavigate, currentView }: InfoPanelProps) {
           {links.map((link) => (
             <li
               key={link.id}
-              className={`border-b border-white/20 last:border-0 hover:bg-white/10 transition-colors cursor-pointer ${currentView === link.id ? 'bg-white/20' : ''}`}
+              className={` hover:bg-white/10 transition-colors cursor-pointer ${currentView === link.id ? 'bg-white/20' : ''}`}
               onClick={() => onNavigate(link.id)}
             >
-              <div className="block px-[15px] py-3 text-[13px] leading-relaxed">
+              <div className="block px-[15px] py-1 text-[13px] leading-relaxed">
                 {link.text}
               </div>
             </li>
@@ -37,7 +37,7 @@ export function InfoPanel({ onNavigate, currentView }: InfoPanelProps) {
         </ul>
       </div>
 
-      <div className="p-[15px] mt-4">
+      <div className="p-[15px] mt-0">
         <div
           onClick={() => onNavigate('search')}
           className="flex items-center gap-1 text-[13px] font-bold hover:underline cursor-pointer"

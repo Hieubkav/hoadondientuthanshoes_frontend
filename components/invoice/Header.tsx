@@ -19,8 +19,8 @@ export function Header({ onNavigate, currentView }: HeaderProps) {
           <Image
             src="/logo.png"
             alt="E-Invoice NET"
-            width={312}
-            height={78}
+            width={296}
+            height={74}
             className="h-auto"
           />
         </div>

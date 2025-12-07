@@ -318,8 +318,8 @@ export function InvoiceLookupForm({ onNavigate, currentView }: InvoiceLookupForm
 
   return (
     <>
-      <div className="bg-white shadow-lg rounded-sm overflow-hidden min-h-[500px] flex flex-col">
-        <div className="p-10 flex-grow">
+      <div className="bg-white shadow-lg overflow-hidden min-h-[500px] flex flex-col">
+        <div className="px-30 py-10 flex-grow">
           <h2 className="text-[28px] text-[#555555] text-center mb-10 font-normal leading-tight">
             Nhập thông tin tìm kiếm hóa đơn điện tử
           </h2>
@@ -419,13 +419,13 @@ export function InvoiceLookupForm({ onNavigate, currentView }: InvoiceLookupForm
           </div>
         </div>
 
-        <div className="border-t border-[#eee] py-4 px-8">
+        <div className="bg-[#fafafa] py-4 px-8">
           <div className="flex items-center justify-end gap-2">
-            <span className="text-[#777] text-sm">Chia sẻ:</span>
+            <span className="text-black text-sm">Chia sẻ:</span>
 
             <a
               href="#"
-              className="w-[30px] h-[30px] bg-[#dd4b39] flex items-center justify-center text-white rounded-[2px] hover:opacity-90 transition-opacity"
+              className="w-[30px] h-[30px] bg-[#dd4b39] flex items-center justify-center text-white rounded-full hover:opacity-90 transition-opacity"
             >
               <span className="font-bold text-sm">G+</span>
             </a>
