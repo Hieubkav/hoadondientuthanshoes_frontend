@@ -1,6 +1,6 @@
-'use client';
+import React from 'react';
 
-export function Footer() {
+const Footer: React.FC = () => {
   return (
     <footer className="w-full py-8 mt-auto">
       <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -10,4 +10,6 @@ export function Footer() {
       </div>
     </footer>
   );
-}
+};
+
+export default Footer;
