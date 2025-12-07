@@ -16,20 +16,20 @@ export function InfoPanel({ onNavigate, currentView }: InfoPanelProps) {
   ];
 
   return (
-    <div className=" text-white ">
-      <div className="px-[15px] py-[15px]">
-        <h3 className="font-bold text-[16px]">Thông tin về hóa đơn điện tử</h3>
+    <div className="text-white max-md:bg-[#003f97] max-md:rounded-lg max-md:mt-2">
+      <div className="px-[15px] py-[15px] max-md:py-3">
+        <h3 className="font-bold text-[16px] max-md:text-[14px]">Thông tin về hóa đơn điện tử</h3>
       </div>
 
       <div>
-        <ul>
+        <ul className="max-md:pb-2">
           {links.map((link) => (
             <li
               key={link.id}
-              className={` hover:bg-white/10 transition-colors cursor-pointer ${currentView === link.id ? 'bg-white/20' : ''}`}
+              className={`hover:bg-white/10 transition-colors cursor-pointer ${currentView === link.id ? 'bg-white/20' : ''}`}
               onClick={() => onNavigate(link.id)}
             >
-              <div className="block px-[30px] py-1 text-[13px] leading-relaxed">
+              <div className="block px-[30px] max-md:px-4 py-1 max-md:py-2 text-[13px] leading-relaxed">
                 {link.text}
               </div>
             </li>
@@ -37,7 +37,7 @@ export function InfoPanel({ onNavigate, currentView }: InfoPanelProps) {
         </ul>
       </div>
 
-      <div className="px-[15px] py-[15px] mt-0">
+      <div className="px-[15px] py-[15px] max-md:py-3 mt-0">
         <div
           onClick={() => onNavigate('search')}
           className="flex items-center gap-1 text-[13px] font-bold hover:underline cursor-pointer"

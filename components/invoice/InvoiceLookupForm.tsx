@@ -320,15 +320,15 @@ export function InvoiceLookupForm({ onNavigate, currentView }: InvoiceLookupForm
 
   return (
     <>
-      <div className="bg-white shadow-lg overflow-hidden min-h-[500px] flex flex-col">
-        <div className="px-30 py-10 flex-grow">
-          <h2 className="text-[28px] text-[#555555] text-center mb-10 font-normal leading-tight">
+      <div className="bg-white shadow-lg overflow-hidden min-h-[500px] max-md:min-h-0 flex flex-col">
+        <div className="px-30 max-md:px-4 py-10 max-md:py-6 flex-grow">
+          <h2 className="text-[28px] max-md:text-[20px] text-[#555555] text-center mb-10 max-md:mb-6 font-normal leading-tight">
             Nhập thông tin tìm kiếm hóa đơn điện tử
           </h2>
 
-          <div className="w-full max-w-[700px] mx-auto space-y-5">
+          <div className="w-full max-w-[700px] mx-auto space-y-5 max-md:space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center">
-              <label className="w-[170px] text-right text-[#333] text-sm pt-2 sm:pt-0 pr-6 font-normal">
+              <label className="w-[170px] max-md:w-full text-right max-md:text-left text-[#333] text-sm pt-2 sm:pt-0 pr-6 max-md:pr-0 max-md:pb-1 font-normal">
                 Mã số thuế bên bán <span className="text-red-500">(*)</span>
               </label>
               <input
@@ -336,12 +336,12 @@ export function InvoiceLookupForm({ onNavigate, currentView }: InvoiceLookupForm
                 value={taxId}
                 onChange={(e) => setTaxId(e.target.value)}
                 placeholder="Nhập mã số thuế"
-                className="flex-1 border border-[#ccc] h-[34px] px-3 text-sm bg-white text-black font-medium focus:outline-none focus:border-[#66afe9] focus:ring-1 focus:ring-[#66afe9] shadow-inner transition-colors"
+                className="flex-1 border border-[#ccc] h-[34px] max-md:h-[40px] px-3 text-sm bg-white text-black font-medium focus:outline-none focus:border-[#66afe9] focus:ring-1 focus:ring-[#66afe9] shadow-inner transition-colors"
               />
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center">
-              <label className="w-[170px] text-right text-[#333] text-sm pt-2 sm:pt-0 pr-6 font-normal">
+              <label className="w-[170px] max-md:w-full text-right max-md:text-left text-[#333] text-sm pt-2 sm:pt-0 pr-6 max-md:pr-0 max-md:pb-1 font-normal">
                 Mã nhận hóa đơn <span className="text-red-500">(*)</span>
               </label>
               <input
@@ -349,31 +349,31 @@ export function InvoiceLookupForm({ onNavigate, currentView }: InvoiceLookupForm
                 value={invoiceCode}
                 onChange={(e) => setInvoiceCode(e.target.value)}
                 placeholder="Nhập mã nhận hóa đơn"
-                className="flex-1 border border-[#ccc] h-[34px] px-3 text-sm bg-white text-black font-medium focus:outline-none focus:border-[#66afe9] focus:ring-1 focus:ring-[#66afe9] shadow-inner transition-colors"
+                className="flex-1 border border-[#ccc] h-[34px] max-md:h-[40px] px-3 text-sm bg-white text-black font-medium focus:outline-none focus:border-[#66afe9] focus:ring-1 focus:ring-[#66afe9] shadow-inner transition-colors"
               />
             </div>
 
             <div className="flex flex-col sm:flex-row">
-              <label className="w-[170px] text-right text-[#333] text-sm pt-2 pr-6 font-normal">
+              <label className="w-[170px] max-md:w-full text-right max-md:text-left text-[#333] text-sm pt-2 pr-6 max-md:pr-0 max-md:pb-1 font-normal">
                 Mã kiểm tra: <span className="text-red-500">(*)</span>
               </label>
 
               <div className="flex-1">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 max-md:flex-wrap">
                   <CaptchaCanvas code={captchaCode} onClick={generateCaptcha} />
 
                   <input
                     type="text"
                     value={captcha}
                     onChange={(e) => setCaptcha(e.target.value)}
-                    className="flex-1 border border-[#ccc] h-[40px] px-3 text-sm bg-white text-black font-medium focus:outline-none focus:border-[#66afe9] focus:ring-1 focus:ring-[#66afe9] shadow-inner transition-colors"
+                    className="flex-1 max-md:w-full border border-[#ccc] h-[40px] px-3 text-sm bg-white text-black font-medium focus:outline-none focus:border-[#66afe9] focus:ring-1 focus:ring-[#66afe9] shadow-inner transition-colors"
                   />
                 </div>
 
-                <div className="mt-3 flex justify-end">
+                <div className="mt-3 flex justify-end max-md:justify-center">
                   <button
                     onClick={handleSearch}
-                    className="bg-[#5cb85c] hover:bg-[#449d44] border border-[#4cae4c] text-white px-4 py-2 text-sm font-normal rounded-[3px] transition-colors disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
+                    className="bg-[#5cb85c] hover:bg-[#449d44] border border-[#4cae4c] text-white px-4 py-2 max-md:px-6 max-md:py-3 text-sm font-normal rounded-[3px] transition-colors disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2 max-md:w-full max-md:justify-center"
                     type="button"
                     disabled={loading}
                   >
@@ -398,8 +398,8 @@ export function InvoiceLookupForm({ onNavigate, currentView }: InvoiceLookupForm
           </div>
         </div>
 
-        <div className="bg-[#fafafa] py-4 px-8">
-          <div className="flex items-center justify-end gap-2">
+        <div className="bg-[#fafafa] py-4 px-8 max-md:px-4">
+          <div className="flex items-center justify-end max-md:justify-center gap-2">
             <span className="text-black text-sm">Chia sẻ:</span>
 
             <button
