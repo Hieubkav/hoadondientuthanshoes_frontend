@@ -357,9 +357,9 @@ export function InvoiceLookupForm({ onNavigate, currentView }: InvoiceLookupForm
               </label>
 
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center gap-2">
                   <div
-                    className="bg-[#f2f6fc] border border-[#bce8f1] h-[40px] px-4 flex items-center justify-center select-none min-w-[150px] relative overflow-hidden cursor-pointer"
+                    className="bg-[#f2f6fc] border border-[#bce8f1] h-[40px] px-4 flex items-center justify-center select-none min-w-[150px] relative overflow-hidden cursor-pointer flex-shrink-0"
                     onClick={generateCaptcha}
                     title="Click để lấy mã khác"
                   >
@@ -371,37 +371,25 @@ export function InvoiceLookupForm({ onNavigate, currentView }: InvoiceLookupForm
                     <div className="absolute top-[55%] left-0 w-full h-[1px] bg-[#31708f] opacity-70 -rotate-3 z-20"></div>
                   </div>
 
-                  <button
-                    className="flex items-center gap-1 text-[#333] text-xs hover:text-blue-600 transition-colors border border-[#ddd] px-3 h-[40px] bg-white rounded-sm"
-                    onClick={generateCaptcha}
-                    type="button"
-                  >
-                    <RefreshCw className="w-3 h-3" />
-                    <span>Lấy mã khác</span>
-                  </button>
+                  <input
+                    type="text"
+                    value={captcha}
+                    onChange={(e) => setCaptcha(e.target.value)}
+                    className="flex-1 border border-[#ccc] h-[34px] px-3 text-sm bg-white text-black font-medium focus:outline-none focus:border-[#66afe9] focus:ring-1 focus:ring-[#66afe9] shadow-inner transition-colors"
+                  />
                 </div>
 
-                <input
-                  type="text"
-                  value={captcha}
-                  onChange={(e) => setCaptcha(e.target.value)}
-                  className="w-full sm:w-[150px] border border-[#ccc] h-[34px] px-3 text-sm bg-white text-black font-medium focus:outline-none focus:border-[#66afe9] focus:ring-1 focus:ring-[#66afe9] shadow-inner transition-colors"
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row mt-6">
-              <div className="w-[170px] hidden sm:block pr-6"></div>
-              <div className="flex-1">
-                <button
-                  onClick={handleSearch}
-                  className="bg-[#5cb85c] hover:bg-[#449d44] border border-[#4cae4c] text-white px-4 py-2 text-sm font-normal rounded-[3px] transition-colors disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
-                  type="button"
-                  disabled={loading}
-                >
-                  {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                  Tìm hóa đơn
-                </button>
+                <div className="mt-3 flex justify-end">
+                  <button
+                    onClick={handleSearch}
+                    className="bg-[#5cb85c] hover:bg-[#449d44] border border-[#4cae4c] text-white px-4 py-2 text-sm font-normal rounded-[3px] transition-colors disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
+                    type="button"
+                    disabled={loading}
+                  >
+                    {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                    Tìm hóa đơn
+                  </button>
+                </div>
 
                 {error && (
                   <div className="mt-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">

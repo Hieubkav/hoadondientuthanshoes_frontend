@@ -39,7 +39,7 @@ export function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#f5f5f5] relative font-sans">
-      <div className="absolute top-0 left-0 w-full h-[450px] bg-[#004a9e] z-0" />
+      <div className="absolute top-0 left-0 w-full h-[450px] bg-[#003f97] z-0" />
 
       <div className="relative z-10 flex flex-col min-h-screen">
         <Header onNavigate={setCurrentView} currentView={currentView} />
