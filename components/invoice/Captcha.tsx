@@ -11,9 +11,9 @@ export function Captcha({ onRefresh }: CaptchaProps) {
   const [code, setCode] = useState('');
 
   const generateCode = useCallback(() => {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     let result = '';
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 4; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     setCode(result);

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { Loader2, RefreshCw, Twitter, X, Printer, FileText, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Info } from 'lucide-react';
+import { CaptchaCanvas } from './CaptchaCanvas';
 
 interface InvoiceLookupFormProps {
   onNavigate?: (view: string) => void;
@@ -23,9 +24,9 @@ const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/
 const LOOKUP_URL = `${API_BASE_URL}/public/invoices/lookup`;
 
 const createCaptcha = () => {
-  const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   let result = '';
-  for (let i = 0; i < 5; i += 1) {
+  for (let i = 0; i < 4; i += 1) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return result;
@@ -358,24 +359,13 @@ export function InvoiceLookupForm({ onNavigate, currentView }: InvoiceLookupForm
 
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <div
-                    className="bg-[#f2f6fc] border border-[#bce8f1] h-[40px] px-4 flex items-center justify-center select-none min-w-[150px] relative overflow-hidden cursor-pointer flex-shrink-0"
-                    onClick={generateCaptcha}
-                    title="Click để lấy mã khác"
-                  >
-                    <span className="text-[#31708f] font-bold text-xl tracking-[0.4em] font-serif z-10 relative italic">
-                      {captchaCode}
-                    </span>
-
-                    <div className="absolute top-[45%] left-0 w-full h-[1px] bg-[#31708f] opacity-70 rotate-3 z-20"></div>
-                    <div className="absolute top-[55%] left-0 w-full h-[1px] bg-[#31708f] opacity-70 -rotate-3 z-20"></div>
-                  </div>
+                  <CaptchaCanvas code={captchaCode} onClick={generateCaptcha} />
 
                   <input
                     type="text"
                     value={captcha}
                     onChange={(e) => setCaptcha(e.target.value)}
-                    className="flex-1 border border-[#ccc] h-[34px] px-3 text-sm bg-white text-black font-medium focus:outline-none focus:border-[#66afe9] focus:ring-1 focus:ring-[#66afe9] shadow-inner transition-colors"
+                    className="flex-1 border border-[#ccc] h-[40px] px-3 text-sm bg-white text-black font-medium focus:outline-none focus:border-[#66afe9] focus:ring-1 focus:ring-[#66afe9] shadow-inner transition-colors"
                   />
                 </div>
 
