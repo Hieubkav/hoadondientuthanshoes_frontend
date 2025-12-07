@@ -403,26 +403,62 @@ export function InvoiceLookupForm({ onNavigate, currentView }: InvoiceLookupForm
 
             <a
               href="#"
-              className="w-[30px] h-[30px] bg-[#dd4b39] flex items-center justify-center text-white rounded-full hover:opacity-90 transition-opacity"
+              className="w-[25.5px] h-[25.5px] flex items-center justify-center hover:opacity-90 transition-opacity"
             >
-              <span className="font-bold text-sm">G+</span>
+              <img
+                src="/g.png"
+                alt="Google"
+                className="w-full h-full object-contain"
+              />
             </a>
 
             <a
               href="#"
-              className="w-[30px] h-[30px] bg-[#55acee] flex items-center justify-center text-white rounded-[2px] hover:opacity-90 transition-opacity"
+              className="w-[25.5px] h-[25.5px] flex items-center justify-center hover:opacity-90 transition-opacity"
             >
-              <Twitter className="w-4 h-4 fill-current" />
+              <img
+                src="/tt.png"
+                alt="Twitter"
+                className="w-full h-full object-contain"
+              />
             </a>
 
             <a
               href="#"
-              className="w-[30px] h-[30px] bg-[#3b5998] flex items-center justify-center text-white rounded-[2px] hover:opacity-90 transition-opacity"
+              className="w-[25.5px] h-[25.5px] flex items-center justify-center hover:opacity-90 transition-opacity"
             >
-              <span className="font-bold text-lg">f</span>
+              <img
+                src="/fb.png"
+                alt="Facebook"
+                className="w-full h-full object-contain"
+              />
             </a>
           </div>
         </div>
+
+
+      </div>
+      <div className="text-start md:text-left py-2">
+        <p className="text-gray-600 text-xs">
+          © 2017 Giải pháp hóa đơn điện tử{' '}
+          <a 
+            href="https://einvoice.vn" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="text-blue-600 underline hover:text-blue-800"
+          >
+            Einvoice
+          </a>
+          {' '}phát triển bởi{' '}
+          <a 
+            href="http://thaison.vn" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="text-blue-600 underline hover:text-blue-800"
+          >
+            Thái Sơn
+          </a>
+        </p>
       </div>
 
       {showModal && invoice && (
@@ -448,7 +484,7 @@ export function InvoiceLookupForm({ onNavigate, currentView }: InvoiceLookupForm
                 </div>
               )}
 
-                            {modalImageUrl ? (
+              {modalImageUrl ? (
                 <img src={modalImageUrl} alt="Invoice Content" className="w-full h-auto block" />
               ) : (
                 <div className="w-full aspect-[3/4] bg-gray-50 flex items-center justify-center text-gray-500 text-sm">

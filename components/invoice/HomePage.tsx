@@ -4,7 +4,6 @@ import { useState } from 'react';
 import {
   Header,
   NavBar,
-  Footer,
   InvoiceLookupForm,
   InfoPanel,
   WhatIsEInvoice,
@@ -45,7 +44,7 @@ export function HomePage() {
         <Header onNavigate={setCurrentView} currentView={currentView} />
 
         <main className="flex-grow w-full max-w-[1170px] mx-auto px-4 py-8 relative">
-          <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
+          <div className="flex flex-col lg:flex-row gap-4 items-start justify-center">
             <div className="w-full lg:flex-1 relative">
               <div className="absolute -top-[48px] right-0 z-10">
                 <NavBar onNavigate={setCurrentView} currentView={currentView} />
@@ -58,8 +57,6 @@ export function HomePage() {
             </div>
           </div>
         </main>
-
-        <Footer />
       </div>
     </div>
   );

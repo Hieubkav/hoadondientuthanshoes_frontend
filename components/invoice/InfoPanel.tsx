@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft } from 'lucide-react';
+
 
 interface InfoPanelProps {
   onNavigate: (view: string) => void;
@@ -17,7 +17,7 @@ export function InfoPanel({ onNavigate, currentView }: InfoPanelProps) {
 
   return (
     <div className=" text-white ">
-      <div className="p-[15px] ">
+      <div className="px-[15px] py-[15px]">
         <h3 className="font-bold text-[16px]">Thông tin về hóa đơn điện tử</h3>
       </div>
 
@@ -29,7 +29,7 @@ export function InfoPanel({ onNavigate, currentView }: InfoPanelProps) {
               className={` hover:bg-white/10 transition-colors cursor-pointer ${currentView === link.id ? 'bg-white/20' : ''}`}
               onClick={() => onNavigate(link.id)}
             >
-              <div className="block px-[15px] py-1 text-[13px] leading-relaxed">
+              <div className="block px-[30px] py-1 text-[13px] leading-relaxed">
                 {link.text}
               </div>
             </li>
@@ -37,12 +37,28 @@ export function InfoPanel({ onNavigate, currentView }: InfoPanelProps) {
         </ul>
       </div>
 
-      <div className="p-[15px] mt-0">
+      <div className="px-[15px] py-[15px] mt-0">
         <div
           onClick={() => onNavigate('search')}
           className="flex items-center gap-1 text-[13px] font-bold hover:underline cursor-pointer"
         >
-          <ArrowLeft className="w-3 h-3" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 32 32"
+            className="flex-shrink-0"
+          >
+            <circle cx="16" cy="16" r="14" fill="#ffffff" />
+            <path
+              d="M22 16 H13 M16 11 L10 16 L16 21"
+              fill="none"
+              stroke="#003f97"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
           Tra cứu hóa đơn
         </div>
       </div>
