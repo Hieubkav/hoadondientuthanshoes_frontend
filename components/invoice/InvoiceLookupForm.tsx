@@ -3,6 +3,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Loader2, RefreshCw, Twitter, X, Printer, FileText, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Info } from 'lucide-react';
 
+interface InvoiceLookupFormProps {
+  onNavigate?: (view: string) => void;
+  currentView?: string;
+}
+
 type Invoice = {
   id: number;
   seller_tax_code: string;
@@ -26,7 +31,7 @@ const createCaptcha = () => {
   return result;
 };
 
-export function InvoiceLookupForm() {
+export function InvoiceLookupForm({ onNavigate, currentView }: InvoiceLookupFormProps) {
   const [taxId, setTaxId] = useState('');
   const [invoiceCode, setInvoiceCode] = useState('');
   const [captcha, setCaptcha] = useState('');

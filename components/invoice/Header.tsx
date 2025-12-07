@@ -24,22 +24,6 @@ export function Header({ onNavigate, currentView }: HeaderProps) {
             className="h-auto"
           />
         </div>
-
-        {/* Navigation */}
-        <nav className="flex items-center space-x-6">
-          <button
-            className={`text-white font-bold text-sm uppercase hover:text-[#fcae1d] transition-colors ${currentView === 'search' ? 'text-white' : 'text-white/80'}`}
-            onClick={() => onNavigate('search')}
-          >
-            TRA CỨU HÓA ĐƠN
-          </button>
-          <button
-            className={`text-white font-bold text-sm uppercase hover:text-[#fcae1d] transition-colors ${currentView === 'contact' ? 'text-white' : 'text-white/80'}`}
-            onClick={() => onNavigate('contact')}
-          >
-            LIÊN HỆ
-          </button>
-        </nav>
       </div>
     </header>
   );
