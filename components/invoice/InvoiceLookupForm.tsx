@@ -401,38 +401,41 @@ export function InvoiceLookupForm({ onNavigate, currentView }: InvoiceLookupForm
           <div className="flex items-center justify-end gap-2">
             <span className="text-black text-sm">Chia sẻ:</span>
 
-            <a
-              href="#"
-              className="w-[25.5px] h-[25.5px] flex items-center justify-center hover:opacity-90 transition-opacity"
+            <button
+              onClick={() => window.open('https://workspaceupdates.googleblog.com/2023/04/new-community-features-for-google-chat-and-an-update-currents%20.html', 'google_share', 'width=800,height=600,left=100,top=100')}
+              className="w-[25.5px] h-[25.5px] flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer"
+              title="Chia sẻ trên Google"
             >
               <img
                 src="/g.png"
                 alt="Google"
                 className="w-full h-full object-contain"
               />
-            </a>
+            </button>
 
-            <a
-              href="#"
-              className="w-[25.5px] h-[25.5px] flex items-center justify-center hover:opacity-90 transition-opacity"
+            <button
+              onClick={() => window.open('https://x.com/intent/tweet?url=http%3A%2F%2Ftracuutvan.einvoice.com.vn%2Ftra-cuu-hoa-don', 'twitter_share', 'width=600,height=400,left=200,top=200')}
+              className="w-[25.5px] h-[25.5px] flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer"
+              title="Chia sẻ trên Twitter/X"
             >
               <img
                 src="/tt.png"
                 alt="Twitter"
                 className="w-full h-full object-contain"
               />
-            </a>
+            </button>
 
-            <a
-              href="#"
-              className="w-[25.5px] h-[25.5px] flex items-center justify-center hover:opacity-90 transition-opacity"
+            <button
+              onClick={() => window.open('https://www.facebook.com/share_channel/?type=reshare&link=http%3A%2F%2Ftracuutvan.einvoice.com.vn%2Ftra-cuu-hoa-don&app_id=966242223397117&source_surface=external_reshare&display&hashtag#', 'facebook_share', 'width=800,height=600,left=150,top=150')}
+              className="w-[25.5px] h-[25.5px] flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer"
+              title="Chia sẻ trên Facebook"
             >
               <img
                 src="/fb.png"
                 alt="Facebook"
                 className="w-full h-full object-contain"
               />
-            </a>
+            </button>
           </div>
         </div>
 
