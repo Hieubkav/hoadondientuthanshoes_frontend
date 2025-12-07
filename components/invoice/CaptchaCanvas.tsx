@@ -43,21 +43,24 @@ export function CaptchaCanvas({ code, onClick }: CaptchaCanvasProps) {
     ctx.font = 'italic bold 42px Arial, sans-serif';
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'center';
-    ctx.letterSpacing = '8px';
 
     const centerY = height / 2;
-    const charSpacing = width / (code.length + 1);
+    // Reduce spacing to make characters closer together
+    const charSpacing = 32;
+    const totalTextWidth = charSpacing * code.length;
+    const startX = (width - totalTextWidth) / 2 + charSpacing / 2;
+    // Use consistent angle for all characters (increased to ~30 degrees)
+    const consistentAngle = -0.45;
 
     for (let i = 0; i < code.length; i++) {
       ctx.save();
 
-      const x = (i + 1) * charSpacing;
-      const y = centerY + (Math.random() - 0.5) * 6;
-      const angle = -(Math.random() * 0.4 + 0.27);
+      const x = startX + i * charSpacing;
+      const y = centerY;
 
       ctx.translate(x, y);
-      ctx.rotate(angle);
-      ctx.globalAlpha = 0.6;
+      ctx.rotate(consistentAngle);
+      ctx.globalAlpha = 0.45;
 
       // Light blue stroke for outline/shadow effect
       ctx.strokeStyle = '#2224f7';
