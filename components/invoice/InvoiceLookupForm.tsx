@@ -1,22 +1,21 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import {
-  RefreshCw,
-  Twitter,
-  Printer,
-  X,
-  FileText,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  Info,
-} from 'lucide-react';
+import { Loader2, RefreshCw, Twitter, X, Printer, FileText, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Info } from 'lucide-react';
 
-const INVOICE_IMAGE_URL =
-  'https://tse1.mm.bing.net/th/id/OIP.jSgipmHW83V4EhPzsYWVBgHaKe?cb=ucfimg2&ucfimg=1&rs=1&pid=ImgDetMain&o=7&rm=3';
-const TOTAL_PAGES = 3;
+type Invoice = {
+  id: number;
+  seller_tax_code: string;
+  invoice_code: string;
+  image: string | null;
+  image_url?: string | null;
+  download_url?: string | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1').replace(/\/$/, '');
+const LOOKUP_URL = `${API_BASE_URL}/public/invoices/lookup`;
 
 const createCaptcha = () => {
   const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -32,8 +31,32 @@ export function InvoiceLookupForm() {
   const [invoiceCode, setInvoiceCode] = useState('');
   const [captcha, setCaptcha] = useState('');
   const [captchaCode, setCaptchaCode] = useState<string>('BWHE2');
+  const [invoice, setInvoice] = useState<Invoice | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+
+  const buildImageUrl = () => {
+    if (!invoice) return '';
+
+    const imagePath = invoice.image_url || invoice.image || '';
+    if (!imagePath) return '';
+
+    // Keep absolute URL unchanged to avoid switching host/port
+    if (/^https?:\/\//i.test(imagePath)) return imagePath;
+
+    const apiRoot =
+      process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v1\/?$/, '') ||
+      'http://localhost:8000';
+
+    const normalizedPath = imagePath.startsWith('/storage/')
+      ? imagePath
+      : `/storage/${imagePath.replace(/^\//, '')}`;
+
+    return `${apiRoot}${normalizedPath}`;
+  };
 
   const generateCaptcha = useCallback(() => {
     setCaptchaCode(createCaptcha());
@@ -55,31 +78,72 @@ export function InvoiceLookupForm() {
     };
   }, [showModal]);
 
-  const handleSearch = () => {
-    setShowModal(false);
-    setCurrentPage(1);
+  const handleSearch = async () => {
+    setError(null);
+    setMessage(null);
+    setInvoice(null);
 
-    if (taxId !== '123') {
-      alert('Mã số thuế bên bán không chính xác! (Gợi ý: 123)');
+    if (!taxId.trim()) {
+      setError('Vui lòng nhập Mã số thuế bên bán.');
       return;
     }
 
-    if (invoiceCode !== '123') {
-      alert('Mã nhận hóa đơn không chính xác! (Gợi ý: 123)');
+    if (!invoiceCode.trim()) {
+      setError('Vui lòng nhập Mã nhận hóa đơn.');
+      return;
+    }
+
+    if (!captcha.trim()) {
+      setError('Vui lòng nhập Mã kiểm tra.');
       return;
     }
 
     if (captcha.toUpperCase() !== captchaCode.toUpperCase()) {
-      alert('Mã kiểm tra không đúng. Vui lòng nhập lại!');
+      setError('Mã kiểm tra không đúng. Vui lòng nhập lại.');
       generateCaptcha();
       setCaptcha('');
       return;
     }
 
-    setShowModal(true);
+    setLoading(true);
+
+    try {
+      const response = await fetch(LOOKUP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          seller_tax_code: taxId.trim(),
+          invoice_code: invoiceCode.trim(),
+        }),
+        cache: 'no-store',
+      });
+
+      const payload = await response
+        .json()
+        .catch(() => ({ success: false, message: 'Không thể phân tích phản hồi từ máy chủ.' }));
+
+      if (!response.ok || payload?.success === false) {
+        const messageText =
+          payload?.message || 'Không thể tìm thấy hóa đơn. Vui lòng kiểm tra lại thông tin.';
+        throw new Error(messageText);
+      }
+
+      setInvoice(payload.data as Invoice);
+      setMessage(payload.message || 'Tìm thấy hóa đơn!');
+      setShowModal(true);
+      setCurrentPage(1);
+    } catch (err) {
+      const messageText = err instanceof Error ? err.message : 'Có lỗi xảy ra, vui lòng thử lại.';
+      setError(messageText);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePrint = () => {
+    const imageUrl = buildImageUrl();
+    if (!imageUrl) return;
+
     const printWindow = window.open('', '_blank');
     if (printWindow) {
       printWindow.document.write(`
@@ -96,7 +160,7 @@ export function InvoiceLookupForm() {
             </style>
           </head>
           <body>
-            <img src="${INVOICE_IMAGE_URL}" onload="window.print();window.close()" />
+            <img src="${imageUrl}" onload="window.print();window.close()" />
           </body>
         </html>
       `);
@@ -105,22 +169,20 @@ export function InvoiceLookupForm() {
   };
 
   const handleDownload = async () => {
-    try {
-      const response = await fetch(INVOICE_IMAGE_URL);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `HoaDon_${invoiceCode}.jpg`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Download failed:', error);
-      window.open(INVOICE_IMAGE_URL, '_blank');
-    }
+    const imageUrl = buildImageUrl();
+    if (!imageUrl) return;
+
+    // Proxy qua API route c?ng origin ?? tr nh CORS
+    const downloadUrl = `/api/invoice-file?image=${encodeURIComponent(imageUrl)}`;
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = `HoaDon_${invoice?.invoice_code || invoiceCode}.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
+
+  const modalImageUrl = buildImageUrl();
 
   return (
     <>
@@ -139,7 +201,7 @@ export function InvoiceLookupForm() {
                 type="text"
                 value={taxId}
                 onChange={(e) => setTaxId(e.target.value)}
-                placeholder="Nhập 123"
+                placeholder="Nhập mã số thuế"
                 className="flex-1 border border-[#ccc] h-[34px] px-3 text-sm bg-white text-black font-medium focus:outline-none focus:border-[#66afe9] focus:ring-1 focus:ring-[#66afe9] shadow-inner transition-colors"
               />
             </div>
@@ -152,7 +214,7 @@ export function InvoiceLookupForm() {
                 type="text"
                 value={invoiceCode}
                 onChange={(e) => setInvoiceCode(e.target.value)}
-                placeholder="Nhập 123"
+                placeholder="Nhập mã nhận hóa đơn"
                 className="flex-1 border border-[#ccc] h-[34px] px-3 text-sm bg-white text-black font-medium focus:outline-none focus:border-[#66afe9] focus:ring-1 focus:ring-[#66afe9] shadow-inner transition-colors"
               />
             </div>
@@ -201,11 +263,25 @@ export function InvoiceLookupForm() {
               <div className="flex-1">
                 <button
                   onClick={handleSearch}
-                  className="bg-[#5cb85c] hover:bg-[#449d44] border border-[#4cae4c] text-white px-4 py-2 text-sm font-normal rounded-[3px] transition-colors"
+                  className="bg-[#5cb85c] hover:bg-[#449d44] border border-[#4cae4c] text-white px-4 py-2 text-sm font-normal rounded-[3px] transition-colors disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
                   type="button"
+                  disabled={loading}
                 >
+                  {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                   Tìm hóa đơn
                 </button>
+
+                {error && (
+                  <div className="mt-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">
+                    {error}
+                  </div>
+                )}
+
+                {message && (
+                  <div className="mt-3 text-sm text-green-700 bg-green-50 border border-green-200 rounded px-3 py-2">
+                    {message}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -239,7 +315,7 @@ export function InvoiceLookupForm() {
         </div>
       </div>
 
-      {showModal && (
+      {showModal && invoice && (
         <div
           className="fixed inset-0 z-50 overflow-y-auto bg-black/60"
           aria-labelledby="modal-title"
@@ -256,10 +332,10 @@ export function InvoiceLookupForm() {
 
           <div className="flex min-h-full flex-col items-center justify-start p-4 md:py-8">
             <div className="bg-white shadow-2xl max-w-[210mm] w-full relative mb-4 transition-transform">
-              <img src={INVOICE_IMAGE_URL} alt="Invoice Content" className="w-full h-auto block" />
+              <img src={modalImageUrl} alt="Invoice Content" className="w-full h-auto block" />
 
               <div className="absolute bottom-2 right-4 text-[10px] text-gray-400">
-                Page {currentPage}/{TOTAL_PAGES}
+                Page {currentPage}
               </div>
             </div>
 
@@ -283,35 +359,19 @@ export function InvoiceLookupForm() {
                     <ChevronLeft className="w-4 h-4" />
                   </button>
 
-                  {[1, 2, 3].map((page) => (
-                    <button
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      className={`w-8 h-8 flex items-center justify-center border rounded-[3px] text-sm font-medium transition-colors ${
-                        currentPage === page
-                          ? 'bg-[#337ab7] border-[#337ab7] text-white'
-                          : 'bg-white border-[#ccc] text-[#333] hover:bg-[#eee]'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
+                  <button
+                    onClick={() => setCurrentPage(currentPage)}
+                    className="w-8 h-8 flex items-center justify-center border rounded-[3px] text-sm font-medium bg-[#337ab7] border-[#337ab7] text-white"
+                  >
+                    {currentPage}
+                  </button>
 
                   <button
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, TOTAL_PAGES))}
-                    disabled={currentPage === TOTAL_PAGES}
-                    className="p-1.5 border border-[#ccc] rounded-[3px] hover:bg-[#eee] disabled:opacity-50 text-[#555]"
+                    onClick={() => setCurrentPage((prev) => prev + 1)}
+                    className="p-1.5 border border-[#ccc] rounded-[3px] hover:bg-[#eee] text-[#555]"
                     title="Trang sau"
                   >
                     <ChevronRight className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setCurrentPage(TOTAL_PAGES)}
-                    disabled={currentPage === TOTAL_PAGES}
-                    className="p-1.5 border border-[#ccc] rounded-[3px] hover:bg-[#eee] disabled:opacity-50 text-[#555]"
-                    title="Trang cuối"
-                  >
-                    <ChevronsRight className="w-4 h-4" />
                   </button>
                 </div>
 
