@@ -1,10 +1,11 @@
 'use client';
 
 import Image from 'next/image';
+import { ViewKey } from './types';
 
 interface HeaderProps {
-  onNavigate: (view: string) => void;
-  currentView: string;
+  onNavigate: (view: ViewKey) => void;
+  currentView: ViewKey;
 }
 
 export function Header({ onNavigate, currentView }: HeaderProps) {

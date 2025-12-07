@@ -1,14 +1,14 @@
 'use client';
 
-
+import { ViewKey } from './types';
 
 interface InfoPanelProps {
-  onNavigate: (view: string) => void;
-  currentView: string;
+  onNavigate: (view: ViewKey) => void;
+  currentView: ViewKey;
 }
 
 export function InfoPanel({ onNavigate, currentView }: InfoPanelProps) {
-  const links = [
+  const links: Array<{ id: ViewKey; text: string }> = [
     { id: 'what-is', text: 'Hóa đơn điện tử là gì?' },
     { id: 'legal', text: 'Quy định pháp luật về hóa đơn điện tử' },
     { id: 'guide', text: 'Hướng dẫn tra cứu hóa đơn' },

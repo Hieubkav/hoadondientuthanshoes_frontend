@@ -3,10 +3,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Loader2, RefreshCw, Twitter, X, Printer, FileText, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Info } from 'lucide-react';
 import { CaptchaCanvas } from './CaptchaCanvas';
+import { ViewKey } from './types';
 
 interface InvoiceLookupFormProps {
-  onNavigate?: (view: string) => void;
-  currentView?: string;
+  onNavigate?: (view: ViewKey) => void;
+  currentView?: ViewKey;
 }
 
 type Invoice = {

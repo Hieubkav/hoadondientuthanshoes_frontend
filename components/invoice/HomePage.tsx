@@ -12,8 +12,7 @@ import {
   AdjustmentMinutes,
   ContactPage,
 } from '@/components/invoice';
-
-type ViewKey = 'search' | 'what-is' | 'legal' | 'guide' | 'minutes' | 'contact';
+import { ViewKey } from './types';
 
 export function HomePage() {
   const [currentView, setCurrentView] = useState<ViewKey>('search');
