@@ -37,6 +37,13 @@ export function InvoiceLookupForm() {
   const [message, setMessage] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isPdf, setIsPdf] = useState(false);
+  const [totalPages, setTotalPages] = useState(1);
+  const [renderedUrl, setRenderedUrl] = useState('');
+  const [sourceUrl, setSourceUrl] = useState('');
+  const [pdfDoc, setPdfDoc] = useState<any>(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
+
 
   const buildImageUrl = () => {
     if (!invoice) return '';
@@ -63,6 +70,55 @@ export function InvoiceLookupForm() {
     return opts?.inline ? `${base}&inline=1` : base;
   };
 
+  const renderPdfPage = useCallback(async (doc: any, pageNumber: number) => {
+    const page = await doc.getPage(pageNumber);
+    const viewport = page.getViewport({ scale: 1.2 });
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    if (!context) return;
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    await page.render({ canvasContext: context, viewport }).promise;
+    setRenderedUrl(canvas.toDataURL('image/png'));
+  }, []);
+
+  const loadPdfDocument = useCallback(
+    async (url: string) => {
+      setPdfLoading(true);
+      try {
+        const pdfjsLib = await import('pdfjs-dist');
+        const workerModule = await import('pdfjs-dist/build/pdf.worker.min.mjs');
+        const workerCandidate =
+          (workerModule as any)?.default ??
+          (workerModule as any)?.src ??
+          (workerModule as any);
+        const workerSrc =
+          typeof workerCandidate === 'string'
+            ? workerCandidate
+            : workerCandidate?.toString?.();
+
+        // Fallback CDN nếu bundler không trả về URL hợp lệ
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+          workerSrc && workerSrc !== '[object Module]'
+            ? workerSrc
+            : 'https://unpkg.com/pdfjs-dist@4.5.136/build/pdf.worker.min.js';
+
+        const doc = await pdfjsLib.getDocument({ url, withCredentials: false }).promise;
+        setPdfDoc(doc);
+        setTotalPages(doc.numPages || 1);
+        setCurrentPage(1);
+        await renderPdfPage(doc, 1);
+      } catch (err) {
+        console.error(err);
+        setError('Không tải được PDF hóa đơn.');
+      } finally {
+        setPdfLoading(false);
+      }
+    },
+    [renderPdfPage],
+  );
+
+
   const generateCaptcha = useCallback(() => {
     setCaptchaCode(createCaptcha());
   }, []);
@@ -82,6 +138,50 @@ export function InvoiceLookupForm() {
       document.body.style.overflow = 'unset';
     };
   }, [showModal]);
+
+  useEffect(() => {
+    if (!invoice) {
+      setRenderedUrl('');
+      setSourceUrl('');
+      setIsPdf(false);
+      setTotalPages(1);
+      setCurrentPage(1);
+      setPdfDoc(null);
+      setPdfLoading(false);
+      return;
+    }
+
+    const rawUrl = buildImageUrl();
+    setSourceUrl(rawUrl);
+    if (!rawUrl) return;
+
+    const pdfFile = /\.pdf($|\?)/i.test(rawUrl);
+    setIsPdf(pdfFile);
+
+    if (pdfFile) {
+      const inlineUrl = buildProxyDownloadUrl(rawUrl, { inline: true });
+      loadPdfDocument(inlineUrl);
+    } else {
+      setPdfDoc(null);
+      setPdfLoading(false);
+      setRenderedUrl(rawUrl);
+      setTotalPages(1);
+      setCurrentPage(1);
+    }
+  }, [invoice, loadPdfDocument]);
+
+  useEffect(() => {
+    if (!isPdf || !pdfDoc) return;
+
+    const safePage = Math.min(Math.max(currentPage, 1), totalPages);
+    if (safePage !== currentPage) {
+      setCurrentPage(safePage);
+      return;
+    }
+
+    renderPdfPage(pdfDoc, safePage);
+  }, [currentPage, isPdf, pdfDoc, totalPages, renderPdfPage]);
+
 
   const handleSearch = async () => {
     setError(null);
@@ -146,11 +246,11 @@ export function InvoiceLookupForm() {
   };
 
   const handlePrint = () => {
-    const imageUrl = buildImageUrl();
-    if (!imageUrl) return;
+    const targetUrl = sourceUrl || buildImageUrl();
+    if (!targetUrl) return;
 
-    const proxiedUrl = buildProxyDownloadUrl(imageUrl, { inline: true });
-    const isPdf = /\.pdf($|\?)/i.test(imageUrl);
+    const proxiedUrl = buildProxyDownloadUrl(targetUrl, { inline: true });
+    const isPdfFile = isPdf || /\.pdf($|\?)/i.test(targetUrl);
 
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
@@ -158,7 +258,7 @@ export function InvoiceLookupForm() {
       return;
     }
 
-    const html = isPdf
+    const html = isPdfFile
       ? `
         <html>
           <head>
@@ -196,11 +296,11 @@ export function InvoiceLookupForm() {
   };
 
   const handleDownload = async () => {
-    const imageUrl = buildImageUrl();
-    if (!imageUrl) return;
+    const targetUrl = sourceUrl || buildImageUrl();
+    if (!targetUrl) return;
 
     // Proxy qua API route cung origin de tranh CORS
-    const downloadUrl = buildProxyDownloadUrl(imageUrl);
+    const downloadUrl = buildProxyDownloadUrl(targetUrl);
     const link = document.createElement('a');
     link.href = downloadUrl;
     link.download = `HoaDon_${invoice?.invoice_code || invoiceCode}.jpg`;
@@ -209,7 +309,7 @@ export function InvoiceLookupForm() {
     document.body.removeChild(link);
   };
 
-  const modalImageUrl = buildImageUrl();
+  const modalImageUrl = renderedUrl || buildImageUrl();
 
   return (
     <>
@@ -358,11 +458,23 @@ export function InvoiceLookupForm() {
           </button>
 
           <div className="flex min-h-full flex-col items-center justify-start p-4 md:py-8">
-            <div className="bg-white shadow-2xl max-w-[210mm] w-full relative mb-4 transition-transform">
-              <img src={modalImageUrl} alt="Invoice Content" className="w-full h-auto block" />
+            <div className="bg-white shadow-2xl max-w-[210mm] w-full relative mb-4 transition-transform min-h-[200px]">
+              {pdfLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white/70 z-10">
+                  <Loader2 className="w-8 h-8 animate-spin text-[#337ab7]" />
+                </div>
+              )}
+
+                            {modalImageUrl ? (
+                <img src={modalImageUrl} alt="Invoice Content" className="w-full h-auto block" />
+              ) : (
+                <div className="w-full aspect-[3/4] bg-gray-50 flex items-center justify-center text-gray-500 text-sm">
+                  Không hiển thị nội dung
+                </div>
+              )}
 
               <div className="absolute bottom-2 right-4 text-[10px] text-gray-400">
-                Page {currentPage}
+                Page {currentPage} / {totalPages}
               </div>
             </div>
 
@@ -371,7 +483,7 @@ export function InvoiceLookupForm() {
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => setCurrentPage(1)}
-                    disabled={currentPage === 1}
+                    disabled={currentPage === 1 || pdfLoading}
                     className="p-1.5 border border-[#ccc] rounded-[3px] hover:bg-[#eee] disabled:opacity-50 text-[#555]"
                     title="Trang đầu"
                   >
@@ -379,26 +491,32 @@ export function InvoiceLookupForm() {
                   </button>
                   <button
                     onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
+                    disabled={currentPage === 1 || pdfLoading}
                     className="p-1.5 border border-[#ccc] rounded-[3px] hover:bg-[#eee] disabled:opacity-50 text-[#555]"
                     title="Trang trước"
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
 
-                  <button
-                    onClick={() => setCurrentPage(currentPage)}
-                    className="w-8 h-8 flex items-center justify-center border rounded-[3px] text-sm font-medium bg-[#337ab7] border-[#337ab7] text-white"
-                  >
-                    {currentPage}
-                  </button>
+                  <div className="min-w-[74px] h-8 px-3 flex items-center justify-center border rounded-[3px] text-sm font-medium bg-[#337ab7] border-[#337ab7] text-white">
+                    {currentPage} / {totalPages}
+                  </div>
 
                   <button
-                    onClick={() => setCurrentPage((prev) => prev + 1)}
-                    className="p-1.5 border border-[#ccc] rounded-[3px] hover:bg-[#eee] text-[#555]"
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage >= totalPages || pdfLoading}
+                    className="p-1.5 border border-[#ccc] rounded-[3px] hover:bg-[#eee] text-[#555] disabled:opacity-50"
                     title="Trang sau"
                   >
                     <ChevronRight className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(totalPages)}
+                    disabled={currentPage >= totalPages || pdfLoading}
+                    className="p-1.5 border border-[#ccc] rounded-[3px] hover:bg-[#eee] text-[#555] disabled:opacity-50"
+                    title="Trang cuối"
+                  >
+                    <ChevronsRight className="w-4 h-4" />
                   </button>
                 </div>
 
