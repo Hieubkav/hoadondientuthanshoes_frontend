@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 interface HeaderProps {
   onNavigate: (view: string) => void;
   currentView: string;
@@ -14,24 +16,13 @@ export function Header({ onNavigate, currentView }: HeaderProps) {
           className="flex items-center cursor-pointer"
           onClick={() => onNavigate('search')}
         >
-          <span
-            className="text-[#fcae1d] font-bold text-2xl uppercase tracking-tighter"
-            style={{ fontFamily: 'Arial, sans-serif' }}
-          >
-            E-
-          </span>
-          <span
-            className="text-white font-bold text-2xl uppercase tracking-tighter"
-            style={{ fontFamily: 'Arial, sans-serif' }}
-          >
-            INVOICE
-          </span>
-          <span
-            className="text-white font-bold text-2xl uppercase tracking-tighter"
-            style={{ fontFamily: 'Arial, sans-serif' }}
-          >
-            NET
-          </span>
+          <Image
+            src="/logo.png"
+            alt="E-Invoice NET"
+            width={312}
+            height={78}
+            className="h-auto"
+          />
         </div>
 
         {/* Navigation */}
