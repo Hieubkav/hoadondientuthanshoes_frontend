@@ -6,6 +6,7 @@ import { NextRequest } from 'next/server';
  */
 export async function GET(request: NextRequest) {
   const imageUrl = request.nextUrl.searchParams.get('image');
+  const inline = request.nextUrl.searchParams.get('inline') === '1';
 
   if (!imageUrl) {
     return new Response(JSON.stringify({ message: 'Thiếu tham số image' }), { status: 400 });
@@ -52,7 +53,7 @@ export async function GET(request: NextRequest) {
       status: 200,
       headers: {
         'Content-Type': contentType,
-        'Content-Disposition': `attachment; filename="${fileName}"`,
+        'Content-Disposition': `${inline ? 'inline' : 'attachment'}; filename="${fileName}"`,
         'Cache-Control': 'no-store',
       },
     });

@@ -58,6 +58,11 @@ export function InvoiceLookupForm() {
     return `${apiRoot}${normalizedPath}`;
   };
 
+  const buildProxyDownloadUrl = (rawUrl: string, opts?: { inline?: boolean }) => {
+    const base = `/api/invoice-file?image=${encodeURIComponent(rawUrl)}`;
+    return opts?.inline ? `${base}&inline=1` : base;
+  };
+
   const generateCaptcha = useCallback(() => {
     setCaptchaCode(createCaptcha());
   }, []);
@@ -144,36 +149,58 @@ export function InvoiceLookupForm() {
     const imageUrl = buildImageUrl();
     if (!imageUrl) return;
 
+    const proxiedUrl = buildProxyDownloadUrl(imageUrl, { inline: true });
+    const isPdf = /\.pdf($|\?)/i.test(imageUrl);
+
     const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
+    if (!printWindow) {
+      window.open(proxiedUrl, '_blank');
+      return;
+    }
+
+    const html = isPdf
+      ? `
         <html>
           <head>
-            <title>In Hóa Đơn</title>
+            <title>In Hoa Don</title>
             <style>
-              body { margin: 0; display: flex; justify-content: center; align-items: flex-start; padding-top: 20px; }
-              img { width: 100%; max-width: 210mm; height: auto; }
-              @media print {
-                @page { margin: 0; size: auto; }
-                body { padding: 0; }
-              }
+              body { margin: 0; padding: 0; }
+              iframe { width: 100vw; height: 100vh; border: none; }
+              @media print { @page { margin: 0; size: auto; } }
             </style>
           </head>
           <body>
-            <img src="${imageUrl}" onload="window.print();window.close()" />
+            <iframe src="${proxiedUrl}" onload="const frame=this; setTimeout(() => { try { frame.contentWindow.focus(); frame.contentWindow.print(); } catch(e) { window.focus(); window.print(); } }, 150);" ></iframe>
           </body>
         </html>
-      `);
-      printWindow.document.close();
-    }
+      `
+      : `
+        <html>
+          <head>
+            <title>In Hoa Don</title>
+            <style>
+              body { margin: 0; display: flex; justify-content: center; align-items: flex-start; padding: 0; }
+              img { width: 100%; max-width: 210mm; height: auto; }
+              @media print { @page { margin: 0; size: auto; } body { padding: 0; } }
+            </style>
+          </head>
+          <body>
+            <img src="${proxiedUrl}" onload="window.focus(); window.print(); setTimeout(() => window.close(), 300);" />
+          </body>
+        </html>
+      `;
+
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
   };
 
   const handleDownload = async () => {
     const imageUrl = buildImageUrl();
     if (!imageUrl) return;
 
-    // Proxy qua API route c?ng origin ?? tr nh CORS
-    const downloadUrl = `/api/invoice-file?image=${encodeURIComponent(imageUrl)}`;
+    // Proxy qua API route cung origin de tranh CORS
+    const downloadUrl = buildProxyDownloadUrl(imageUrl);
     const link = document.createElement('a');
     link.href = downloadUrl;
     link.download = `HoaDon_${invoice?.invoice_code || invoiceCode}.jpg`;
