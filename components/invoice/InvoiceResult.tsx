@@ -45,26 +45,34 @@ export function InvoiceResult({ invoice, onClose }: InvoiceResultProps) {
     ? `/api/invoice-file?image=${encodeURIComponent(imageUrl)}`
     : '';
 
+  const isPdf = imageUrl.toLowerCase().endsWith('.pdf');
+
   const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>In hóa đơn - ${invoice.invoice_code}</title>
-            <style>
-              body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-              img { max-width: 100%; height: auto; }
-              @media print { body { margin: 0; } img { max-width: 100%; } }
-            </style>
-          </head>
-          <body>
-            <img src="${imageUrl}" onload="window.print(); window.close();" />
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
+    if (isPdf) {
+      // PDF: mở trực tiếp trong tab mới, browser sẽ hiển thị PDF viewer với nút in
+      window.open(imageUrl, '_blank');
+    } else {
+      // Image: tạo trang HTML để in
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>In hóa đơn - ${invoice.invoice_code}</title>
+              <style>
+                body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+                img { max-width: 100%; height: auto; }
+                @media print { body { margin: 0; } img { max-width: 100%; } }
+              </style>
+            </head>
+            <body>
+              <img src="${imageUrl}" onload="window.print(); window.close();" />
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+      }
     }
   };
 
@@ -83,11 +91,19 @@ export function InvoiceResult({ invoice, onClose }: InvoiceResultProps) {
       </div>
 
       <div className="relative aspect-[3/4] max-h-[400px] bg-slate-100 rounded-lg overflow-hidden border">
-        <img
-          src={imageUrl}
-          alt={`Hóa đơn ${invoice.invoice_code}`}
-          className="w-full h-full object-contain"
-        />
+        {isPdf ? (
+          <iframe
+            src={imageUrl}
+            title={`Hóa đơn ${invoice.invoice_code}`}
+            className="w-full h-full"
+          />
+        ) : (
+          <img
+            src={imageUrl}
+            alt={`Hóa đơn ${invoice.invoice_code}`}
+            className="w-full h-full object-contain"
+          />
+        )}
       </div>
 
       <div className="grid grid-cols-3 gap-3">
@@ -103,7 +119,7 @@ export function InvoiceResult({ invoice, onClose }: InvoiceResultProps) {
           <Button variant="outline" className="w-full" asChild>
             <a
               href={downloadHref}
-              download={`hoa-don-${invoice.invoice_code}.png`}
+              download={`hoa-don-${invoice.invoice_code}${isPdf ? '.pdf' : '.png'}`}
             >
               <Download className="h-4 w-4 mr-2" />
               Tải về
@@ -129,11 +145,19 @@ export function InvoiceResult({ invoice, onClose }: InvoiceResultProps) {
         <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
           <DialogTitle className="sr-only">Xem hóa đơn</DialogTitle>
           <div className="relative w-full h-full overflow-auto p-4">
-            <img
-              src={imageUrl}
-              alt={`Hóa đơn ${invoice.invoice_code}`}
-              className="w-full h-auto"
-            />
+            {isPdf ? (
+              <iframe
+                src={imageUrl}
+                title={`Hóa đơn ${invoice.invoice_code}`}
+                className="w-full h-[80vh]"
+              />
+            ) : (
+              <img
+                src={imageUrl}
+                alt={`Hóa đơn ${invoice.invoice_code}`}
+                className="w-full h-auto"
+              />
+            )}
           </div>
         </DialogContent>
       </Dialog>
