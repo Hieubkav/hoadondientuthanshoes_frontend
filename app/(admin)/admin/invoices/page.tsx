@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Pencil, Trash2, Image as ImageIcon } from 'lucide-react';
+import { Pencil, Trash2, Image as ImageIcon, ArrowUp, ArrowDown, ArrowUpDown, FileText } from 'lucide-react';
 import api from '@/lib/api';
 import { useAuth } from '@/app/context/AuthContext';
 import { Invoice, PaginationMeta } from './types';
 
 type Toast = { id: number; type: 'success' | 'error'; message: string };
+type SortField = 'seller_tax_code' | 'invoice_code' | 'created_at' | null;
+type SortDirection = 'asc' | 'desc';
 
 export default function InvoicesPage() {
   const { loading: authLoading } = useAuth();
@@ -17,19 +19,46 @@ export default function InvoicesPage() {
   const [pageLoading, setPageLoading] = useState(true);
   const [error, setError] = useState('');
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [sortField, setSortField] = useState<SortField>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
   useEffect(() => {
-    loadInvoices(page);
-  }, [page]);
+    loadInvoices(page, sortField, sortDirection);
+  }, [page, sortField, sortDirection]);
 
-  const loadInvoices = async (pageNumber = 1) => {
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+    setPage(1);
+  };
+
+  const getSortIcon = (field: SortField) => {
+    if (sortField !== field) {
+      return <ArrowUpDown size={14} className="text-slate-400" />;
+    }
+    return sortDirection === 'asc' ? (
+      <ArrowUp size={14} className="text-indigo-600 dark:text-indigo-400" />
+    ) : (
+      <ArrowDown size={14} className="text-indigo-600 dark:text-indigo-400" />
+    );
+  };
+
+  const loadInvoices = async (pageNumber = 1, sort: SortField = null, direction: SortDirection = 'asc') => {
     setPageLoading(true);
     setError('');
 
     try {
-      const response = await api.get('/invoices', {
-        params: { page: pageNumber },
-      });
+      const params: Record<string, any> = { page: pageNumber };
+      if (sort) {
+        params.sort_by = sort;
+        params.sort_direction = direction;
+      }
+
+      const response = await api.get('/invoices', { params });
 
       const payload = response.data.data;
       const items = Array.isArray(payload) ? payload : payload?.data ?? [];
@@ -58,7 +87,7 @@ export default function InvoicesPage() {
     try {
       await api.delete(`/invoices/${id}`);
       pushToast('success', 'Đã xoá hóa đơn');
-      await loadInvoices(page);
+      await loadInvoices(page, sortField, sortDirection);
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Xoá thất bại';
       pushToast('error', msg);
@@ -105,10 +134,34 @@ export default function InvoicesPage() {
             <thead className="bg-slate-100 dark:bg-slate-800/70 border-b border-slate-200 dark:border-slate-700">
               <tr className="text-left text-xs font-semibold uppercase text-slate-700 dark:text-slate-200">
                 <th className="px-4 py-3 w-12">STT</th>
-                <th className="px-4 py-3">Mã số thuế</th>
-                <th className="px-4 py-3">Mã hóa đơn</th>
+                <th
+                  className="px-4 py-3 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors select-none"
+                  onClick={() => handleSort('seller_tax_code')}
+                >
+                  <div className="flex items-center gap-2">
+                    Mã số thuế
+                    {getSortIcon('seller_tax_code')}
+                  </div>
+                </th>
+                <th
+                  className="px-4 py-3 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors select-none"
+                  onClick={() => handleSort('invoice_code')}
+                >
+                  <div className="flex items-center gap-2">
+                    Mã hóa đơn
+                    {getSortIcon('invoice_code')}
+                  </div>
+                </th>
                 <th className="px-4 py-3 w-24">Ảnh</th>
-                <th className="px-4 py-3">Ngày tạo</th>
+                <th
+                  className="px-4 py-3 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors select-none"
+                  onClick={() => handleSort('created_at')}
+                >
+                  <div className="flex items-center gap-2">
+                    Ngày tạo
+                    {getSortIcon('created_at')}
+                  </div>
+                </th>
                 <th className="px-4 py-3 text-right">Thao tác</th>
               </tr>
             </thead>
@@ -145,11 +198,18 @@ export default function InvoicesPage() {
                       </td>
                       <td className="px-4 py-4">
                         {invoice.image ? (
-                          <img
-                            src={invoice.image}
-                            alt="Invoice"
-                            className="w-16 h-16 object-cover rounded-lg border border-slate-200 dark:border-slate-600"
-                          />
+                          invoice.image.toLowerCase().endsWith('.pdf') ? (
+                            <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-lg flex flex-col items-center justify-center shadow-sm">
+                              <FileText size={24} className="text-white" />
+                              <span className="text-[10px] font-bold text-white mt-0.5">PDF</span>
+                            </div>
+                          ) : (
+                            <img
+                              src={invoice.image}
+                              alt="Invoice"
+                              className="w-16 h-16 object-cover rounded-lg border border-slate-200 dark:border-slate-600"
+                            />
+                          )
                         ) : (
                           <div className="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center">
                             <ImageIcon size={20} className="text-slate-400" />
@@ -186,27 +246,29 @@ export default function InvoicesPage() {
         </div>
       </div>
 
-      {meta && meta.last_page > 1 && (
+      {meta && (
         <div className="flex items-center justify-between bg-white dark:bg-slate-800 rounded-lg shadow px-4 py-3 border border-slate-200 dark:border-slate-700">
           <span className="text-sm text-slate-600 dark:text-slate-300">
             Trang {meta.current_page} / {meta.last_page} - Tổng {meta.total} hóa đơn
           </span>
-          <div className="space-x-2">
-            <button
-              onClick={() => setPage((p) => Math.max(p - 1, 1))}
-              disabled={meta.current_page <= 1}
-              className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700"
-            >
-              Trước
-            </button>
-            <button
-              onClick={() => setPage((p) => (meta.current_page >= meta.last_page ? p : p + 1))}
-              disabled={meta.current_page >= meta.last_page}
-              className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700"
-            >
-              Sau
-            </button>
-          </div>
+          {meta.last_page > 1 && (
+            <div className="space-x-2">
+              <button
+                onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                disabled={meta.current_page <= 1}
+                className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700"
+              >
+                Trước
+              </button>
+              <button
+                onClick={() => setPage((p) => (meta.current_page >= meta.last_page ? p : p + 1))}
+                disabled={meta.current_page >= meta.last_page}
+                className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700"
+              >
+                Sau
+              </button>
+            </div>
+          )}
         </div>
       )}
 
