@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Images, X } from 'lucide-react';
+import { FileText, Images, X } from 'lucide-react';
 import MediaModal from '../../components/MediaModal';
 import { MediaItem } from '../../media/types';
 
@@ -47,6 +47,8 @@ export default function InvoiceForm({
     await onSubmit(values);
   };
 
+  const fileIsPdf = /\.pdf($|\?)/i.test(values.image) || /\/download($|\?)/i.test(values.image);
+
   return (
     <>
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -85,11 +87,23 @@ export default function InvoiceForm({
             </label>
             {values.image ? (
               <div className="relative inline-block">
-                <img
-                  src={values.image}
-                  alt="Invoice"
-                  className="max-w-xs max-h-48 rounded-lg border border-slate-200 dark:border-slate-600 object-contain"
-                />
+                {fileIsPdf ? (
+                  <a
+                    href={values.image}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex h-32 w-40 flex-col items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200"
+                  >
+                    <FileText size={36} />
+                    <span className="mt-2 text-sm font-semibold">Xem PDF</span>
+                  </a>
+                ) : (
+                  <img
+                    src={values.image}
+                    alt="Invoice"
+                    className="max-w-xs max-h-48 rounded-lg border border-slate-200 dark:border-slate-600 object-contain"
+                  />
+                )}
                 <button
                   type="button"
                   onClick={() => handleChange('image', '')}
