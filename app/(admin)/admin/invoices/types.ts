@@ -3,6 +3,7 @@ export interface Invoice {
   seller_tax_code: string;
   invoice_code: string;
   image: string | null;
+  image_url?: string | null;
   created_at: string;
   updated_at: string;
 }

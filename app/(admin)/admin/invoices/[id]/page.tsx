@@ -117,7 +117,7 @@ export default function EditInvoicePage() {
           initialValues={{
             seller_tax_code: invoice.seller_tax_code,
             invoice_code: invoice.invoice_code,
-            image: invoice.image ?? '',
+            image: invoice.image_url || invoice.image || '',
           }}
           onSubmit={handleSubmit}
           submitting={submitting}

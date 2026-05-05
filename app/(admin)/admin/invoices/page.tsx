@@ -178,6 +178,7 @@ export default function InvoicesPage() {
               ) : (
                 invoices.map((invoice, idx) => {
                   const rowNumber = ((meta?.current_page ?? 1) - 1) * (meta?.per_page ?? invoices.length) + idx + 1;
+                  const invoiceImage = invoice.image_url || invoice.image;
                   const zebra = idx % 2 === 0
                     ? 'bg-white dark:bg-slate-800/60'
                     : 'bg-slate-50 dark:bg-slate-800/40';
@@ -197,15 +198,15 @@ export default function InvoicesPage() {
                         {invoice.invoice_code}
                       </td>
                       <td className="px-4 py-4">
-                        {invoice.image ? (
-                          invoice.image.toLowerCase().endsWith('.pdf') ? (
+                        {invoiceImage ? (
+                          invoiceImage.toLowerCase().endsWith('.pdf') ? (
                             <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-lg flex flex-col items-center justify-center shadow-sm">
                               <FileText size={24} className="text-white" />
                               <span className="text-[10px] font-bold text-white mt-0.5">PDF</span>
                             </div>
                           ) : (
                             <img
-                              src={invoice.image}
+                              src={invoiceImage}
                               alt="Invoice"
                               className="w-16 h-16 object-cover rounded-lg border border-slate-200 dark:border-slate-600"
                             />
