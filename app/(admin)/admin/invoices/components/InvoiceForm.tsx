@@ -55,15 +55,14 @@ export default function InvoiceForm({
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 space-y-5">
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
-              Mã số thuế bên bán <span className="text-red-500">*</span>
+              Mã số thuế bên bán <span className="text-slate-400 text-xs">(Không bắt buộc)</span>
             </label>
             <input
               type="text"
               value={values.seller_tax_code}
               onChange={(e) => handleChange('seller_tax_code', e.target.value)}
               className="w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Nhập mã số thuế bên bán"
-              required
+              placeholder="Nhập mã số thuế bên bán (không bắt buộc)"
             />
           </div>
 

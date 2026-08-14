@@ -34,7 +34,6 @@ const createCaptcha = () => {
 };
 
 export function InvoiceLookupForm({ onNavigate, currentView }: InvoiceLookupFormProps) {
-  const [taxId, setTaxId] = useState('');
   const [invoiceCode, setInvoiceCode] = useState('');
   const [captcha, setCaptcha] = useState('');
   const [captchaCode, setCaptchaCode] = useState<string>('BWHE2');
@@ -195,11 +194,6 @@ export function InvoiceLookupForm({ onNavigate, currentView }: InvoiceLookupForm
     setMessage(null);
     setInvoice(null);
 
-    if (!taxId.trim()) {
-      setError('Vui lòng nhập Mã số thuế bên bán.');
-      return;
-    }
-
     if (!invoiceCode.trim()) {
       setError('Vui lòng nhập Mã nhận hóa đơn.');
       return;
@@ -224,7 +218,6 @@ export function InvoiceLookupForm({ onNavigate, currentView }: InvoiceLookupForm
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          seller_tax_code: taxId.trim(),
           invoice_code: invoiceCode.trim(),
         }),
         cache: 'no-store',
@@ -327,19 +320,6 @@ export function InvoiceLookupForm({ onNavigate, currentView }: InvoiceLookupForm
           </h2>
 
           <div className="w-full max-w-[700px] mx-auto space-y-5 max-md:space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center">
-              <label className="w-[170px] max-md:w-full text-right max-md:text-left text-[#333] text-sm pt-2 sm:pt-0 pr-6 max-md:pr-0 max-md:pb-1 font-normal">
-                Mã số thuế bên bán <span className="text-red-500">(*)</span>
-              </label>
-              <input
-                type="text"
-                value={taxId}
-                onChange={(e) => setTaxId(e.target.value)}
-                placeholder="Nhập mã số thuế"
-                className="flex-1 border border-[#ccc] h-[34px] max-md:h-[40px] px-3 text-sm bg-white text-black font-medium focus:outline-none focus:border-[#66afe9] focus:ring-1 focus:ring-[#66afe9] shadow-inner transition-colors"
-              />
-            </div>
-
             <div className="flex flex-col sm:flex-row sm:items-center">
               <label className="w-[170px] max-md:w-full text-right max-md:text-left text-[#333] text-sm pt-2 sm:pt-0 pr-6 max-md:pr-0 max-md:pb-1 font-normal">
                 Mã nhận hóa đơn <span className="text-red-500">(*)</span>
